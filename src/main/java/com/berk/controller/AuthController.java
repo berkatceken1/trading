@@ -1,10 +1,14 @@
 package com.berk.controller;
 
 import com.berk.config.JwtProvider;
+import com.berk.model.TwoFactorOTP;
 import com.berk.model.User;
 import com.berk.repository.UserRepository;
 import com.berk.response.AuthResponse;
 import com.berk.service.CustomUserDetailsService;
+import com.berk.service.EmailService;
+import com.berk.service.TwoFactorOtpService;
+import com.berk.utils.OtpUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,10 +17,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
@@ -27,6 +28,12 @@ public class AuthController {
 
     @Autowired
     private CustomUserDetailsService customUserDetailsService;
+
+    @Autowired
+    private TwoFactorOtpService twoFactorOtpService;
+
+    @Autowired
+    private EmailService emailService;
 
     @PostMapping("/signup")
     public ResponseEntity<AuthResponse> register(@RequestBody User user) throws Exception {
@@ -82,6 +89,35 @@ public class AuthController {
 
         String jwt = JwtProvider.generateToken(auth);
 
+        User authUser = userRepository.findByEmail(email);
+
+        if (user.getTwoFactorAuth().isEnabled()) {
+            AuthResponse authResponse = new AuthResponse();
+            authResponse.setMessage("Two factor authentication is enabled");
+            authResponse.setTwoFactorEnabled(true);
+
+            String otp = OtpUtils.generateOtp();
+
+            TwoFactorOTP oldTwoFactorOTP = twoFactorOtpService.findByUser(authUser.getId()); // OTP'yi veritabanında ara
+            if (oldTwoFactorOTP != null) {
+                twoFactorOtpService.deleteTwoFactorOtp(oldTwoFactorOTP); // Eski OTP'yi sil
+            }
+
+            TwoFactorOTP newTwoFactorOTP = twoFactorOtpService.createTwoFactorOtp(authUser, otp, jwt); // Yeni OTP oluştur
+
+            emailService.sendVerificationOtpEmail(email, otp); // OTP'yi e-posta ile gönder
+
+            authResponse.setSession(newTwoFactorOTP.getId()); // OTP kimliğini yanıtta gönder
+            return new ResponseEntity<>(authResponse, HttpStatus.CREATED);
+
+
+
+
+
+
+
+        }
+
         AuthResponse authResponse = new AuthResponse();
 
         authResponse.setJwt(jwt);
@@ -104,5 +140,25 @@ public class AuthController {
         }
 
         return new UsernamePasswordAuthenticationToken(userDetails, password, userDetails.getAuthorities());
+    }
+
+    @GetMapping("/two-factor-auth/verify-otp/{otp}")
+    public ResponseEntity<AuthResponse> verifySignInOtp(@PathVariable String otp, @RequestParam String id) {
+
+        TwoFactorOTP twoFactorOTP = twoFactorOtpService.findById(id); // OTP
+
+        if (twoFactorOtpService.verifyOtp(twoFactorOTP, otp)) {
+            AuthResponse authResponse = new AuthResponse();
+            authResponse.setJwt(twoFactorOTP.getJwt());
+            authResponse.setTwoFactorEnabled(true);
+            authResponse.setMessage("Two factor authentication verified");
+
+            twoFactorOtpService.deleteTwoFactorOtp(twoFactorOTP); // OTP'yi sil
+
+            return new ResponseEntity<>(authResponse, HttpStatus.CREATED);
+
+        }
+
+        return null;
     }
 }
