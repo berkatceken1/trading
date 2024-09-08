@@ -1,21 +1,22 @@
 package com.berk.model;
 
-
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.math.BigDecimal;
-
-@Entity
 @Data
-public class Wallet {
+@Entity
+public class Asset {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @OneToOne
-    private User user;
+    private double quantity;
+    private double buyPrice;
 
-    private BigDecimal balance = BigDecimal.ZERO;
+    @ManyToOne
+    private Coin coin;
+
+    @ManyToOne
+    private User user;
 }

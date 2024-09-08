@@ -8,6 +8,7 @@ import com.berk.response.AuthResponse;
 import com.berk.service.CustomUserDetailsService;
 import com.berk.service.EmailService;
 import com.berk.service.TwoFactorOtpService;
+import com.berk.service.WatchListService;
 import com.berk.utils.OtpUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -35,6 +36,9 @@ public class AuthController {
     @Autowired
     private EmailService emailService;
 
+    @Autowired
+    private WatchListService watchListService;
+
     @PostMapping("/signup")
     public ResponseEntity<AuthResponse> register(@RequestBody User user) throws Exception {
 
@@ -50,6 +54,8 @@ public class AuthController {
         newUser.setFullName(user.getFullName());
 
         User savedUser = userRepository.save(newUser);
+
+        watchListService.createWatchList(savedUser);
 
         // Kullanıcı doğrulamasını (authentication) oluşturuyoruz.
         Authentication auth = new UsernamePasswordAuthenticationToken(

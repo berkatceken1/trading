@@ -1,14 +1,14 @@
 package com.berk.model;
 
-
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Data
-public class Wallet {
+public class Watchlist {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -17,5 +17,6 @@ public class Wallet {
     @OneToOne
     private User user;
 
-    private BigDecimal balance = BigDecimal.ZERO;
+    @ManyToMany
+    private List<Coin> coins = new ArrayList<>();
 }

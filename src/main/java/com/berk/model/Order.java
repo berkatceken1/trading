@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Data
+@Table(name = "orders")
 public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -19,6 +20,7 @@ public class Order {
     private User user;
 
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private OrderType orderType;
 
     @Column(nullable = false)
@@ -27,6 +29,7 @@ public class Order {
     private LocalDateTime timestamp = LocalDateTime.now();
 
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private OrderStatus status;
 
     @OneToOne(mappedBy = "order", cascade = CascadeType.ALL)
