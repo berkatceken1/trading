@@ -1,7 +1,7 @@
 package com.berk.domain;
 
 public enum WalletTransactionType {
-    WITHDRAW,
+    WITHDRAWAL,
     WALLET_TRANSFER,
     ADD_MONEY,
     BUY_ASSET,

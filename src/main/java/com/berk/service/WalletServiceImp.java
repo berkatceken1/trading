@@ -1,14 +1,18 @@
 package com.berk.service;
 
 import com.berk.domain.OrderType;
+import com.berk.domain.WalletTransactionType;
 import com.berk.model.Order;
 import com.berk.model.User;
 import com.berk.model.Wallet;
+import com.berk.model.WalletTransaction;
 import com.berk.repository.WalletRepository;
+import com.berk.repository.WalletTransactionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Optional;
 
 @Service
@@ -16,6 +20,9 @@ public class WalletServiceImp implements WalletService {
 
     @Autowired
     private WalletRepository walletRepository;
+
+    @Autowired
+    private WalletTransactionRepository walletTransactionRepository;
 
 
 
@@ -48,7 +55,7 @@ public class WalletServiceImp implements WalletService {
     }
 
     @Override
-    public Wallet walletToWalletTransfer(User sender, Wallet receiver, Long amount) throws Exception {
+    public Wallet walletToWalletTransfer(User sender, Wallet receiver, Long amount, String purpose) throws Exception {
         Wallet senderWallet = getUserWallet(sender);
 
         if (senderWallet.getBalance().compareTo(BigDecimal.valueOf(amount)) < 0) {
@@ -65,7 +72,28 @@ public class WalletServiceImp implements WalletService {
                 .add(BigDecimal.valueOf(amount));
         receiver.setBalance(receiverBalance);
         walletRepository.save(receiver);
+
+
+        WalletTransaction transaction = new WalletTransaction();
+        transaction.setWallet(senderWallet); // veya receiver wallet
+        transaction.setType(WalletTransactionType.WALLET_TRANSFER); // ya da uygun olan türü ayarla
+        transaction.setDate(LocalDate.now());
+
+        if (transaction.getType() == WalletTransactionType.WALLET_TRANSFER) {
+            transaction.setTransferId(generateTransferId());
+        } else {
+            transaction.setTransferId("0");
+        }
+
+        transaction.setPurpose(purpose);
+        transaction.setAmount(amount);
+
+        walletTransactionRepository.save(transaction);
         return senderWallet;
+    }
+
+    private String generateTransferId() {
+        return String.valueOf(walletTransactionRepository.count() + 1);
     }
 
     @Override

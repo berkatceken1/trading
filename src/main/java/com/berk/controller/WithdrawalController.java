@@ -5,6 +5,7 @@ import com.berk.model.User;
 import com.berk.model.Wallet;
 import com.berk.model.WalletTransaction;
 import com.berk.model.Withdrawal;
+import com.berk.service.TransactionService;
 import com.berk.service.UserService;
 import com.berk.service.WalletService;
 import com.berk.service.WithdrawalService;
@@ -28,6 +29,9 @@ public class WithdrawalController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private TransactionService transactionService;
+
 //    @Autowired
 //    private TransactionService transactionService;
 
@@ -42,12 +46,12 @@ public class WithdrawalController {
         Withdrawal withdrawal = withdrawalService.requestWithdrawal(amount, user);
         walletService.addBalance(userWallet, -withdrawal.getAmount());
 
-//        WalletTransaction walletTransaction = transactionService.createTransaction(
-//                userWallet,
-//                WalletTransactionType.WITHDRAW,null,
-//                "Bank account withdrawal",
-//                withdrawal.getAmount()
-//        );
+        WalletTransaction walletTransaction = transactionService.createTransaction(
+                userWallet,
+                WalletTransactionType.WITHDRAWAL,null,
+                "Bank account withdrawal",
+                withdrawal.getAmount()
+        );
 
         return new ResponseEntity<>(withdrawal, HttpStatus.OK);
     }

@@ -49,7 +49,9 @@ public class WalletController {
         Wallet wallet = walletService.walletToWalletTransfer(
                 senderUser,
                 receiverWallet,
-                walletTransactionReq.getAmount());
+                walletTransactionReq.getAmount(),
+                walletTransactionReq.getPurpose()
+        );
 
         return new ResponseEntity<>(wallet, HttpStatus.ACCEPTED);
     }

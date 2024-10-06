@@ -38,8 +38,10 @@ public class OrderController {
         User user = userService.findUserByJwtToken(token);
         Coin coin = coinService.findCoinById(createOrderRequest.getCoinId());
 
-        Order order = orderService.processOrder(coin, createOrderRequest.getQuantity(),
-                createOrderRequest.getOrderType(), user);
+        Order order = orderService.processOrder(coin,
+                createOrderRequest.getQuantity(),
+                createOrderRequest.getOrderType(),
+                user);
         return ResponseEntity.ok(order);
     }
 

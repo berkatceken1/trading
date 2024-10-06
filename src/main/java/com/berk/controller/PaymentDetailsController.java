@@ -30,7 +30,8 @@ public class PaymentDetailsController {
                 paymentDetailsRequest.getAccountHolderName(),
                 paymentDetailsRequest.getIfscCode(),
                 paymentDetailsRequest.getBankName(),
-                user);
+                user
+        );
         return new ResponseEntity<>(paymentDetails, HttpStatus.CREATED);
     }
 

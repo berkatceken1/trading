@@ -23,7 +23,4 @@ public class PaymentOrder {
     @ManyToOne
     private User user;
 
-    // değiştirilebilir
-    private String transactionId; // Iyzico veya PayTR'den dönecek işlem kimliği
-    private String paymentLink;   // Ödeme bağlantısı, eğer link oluşturuluyorsa
 }

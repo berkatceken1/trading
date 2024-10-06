@@ -12,7 +12,7 @@ public interface WalletService {
 
     Wallet findWalletById(Long walletId) throws Exception;
 
-    Wallet walletToWalletTransfer(User sender, Wallet receiver, Long amount) throws Exception;
+    Wallet walletToWalletTransfer(User sender, Wallet receiver, Long amount, String purpose) throws Exception;
 
     Wallet payOrderPayment(Order order, User user) throws Exception;
 }
