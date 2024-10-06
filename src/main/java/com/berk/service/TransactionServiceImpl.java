@@ -1,10 +1,9 @@
-package com.berk.service.impl;
+package com.berk.service;
 
 import com.berk.domain.WalletTransactionType;
 import com.berk.model.Wallet;
 import com.berk.model.WalletTransaction;
 import com.berk.repository.WalletTransactionRepository;
-import com.berk.service.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,7 +11,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Service
-public class TransactionServiceImpl implements TransactionService {
+public class TransactionServiceImpl implements TransactionService{
 
     @Autowired
     private WalletTransactionRepository walletTransactionRepository;
